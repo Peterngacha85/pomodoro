@@ -1,0 +1,162 @@
+import React, { useState, useEffect } from "react";
+import "./clock.css";
+
+function Clock() {
+  const [breaktime, setBreaktime] = useState(5);
+  const [session, setSession] = useState(5);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isSession, setIsSession] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(session * 60);
+
+  const handleDecrement = (state, setState) => {
+    if (state > 1) {
+      setState(state - 1);
+    } else {
+      setState(1);
+    }
+  };
+
+  const handleIncrement = (state, setState, maxValue) => {
+    // console.log(setState);
+    if (state < maxValue) {
+      setState(state + 1);
+    } else {
+      setState(maxValue);
+    }
+  };
+
+  const Break = () => {
+    return (
+      <div className="sub-container break">
+        <h3 className="title" id="break-label">
+          Break
+        </h3>
+        <div className="controllers">
+          <button
+            id="break-decrement"
+            onClick={() => handleDecrement(breaktime, setBreaktime)}
+          >
+            <h5>-</h5>
+          </button>
+          <h5 id="break-length">
+            {breaktime < 10 ? `0${breaktime}` : breaktime}
+          </h5>
+          <button
+            id="break-increment"
+            onClick={() => handleIncrement(breaktime, setBreaktime, 60)}
+          >
+            <h5>+</h5>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const Work = () => {
+    return (
+      <div className="sub-container work">
+        <h3 className="title" id="session-label">
+          Session
+        </h3>
+        <div className="controllers">
+          <button
+            id="session-decrement"
+            onClick={() => handleDecrement(session, setSession)}
+          >
+            <h4>-</h4>
+          </button>
+          <h5 id="session-length">{session < 10 ? `0${session}` : session}</h5>
+          <button
+            id="session-increment"
+            onClick={() => handleIncrement(session, setSession, 60)}
+          >
+            +
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const Timer = ({ session, breaktime, isRunning, setIsSession, setTimeLeft }) => {
+    useEffect(() => {
+      let timer;
+    
+      if (isRunning && timeLeft > 0) {
+        timer = setInterval(() => {
+          setTimeLeft((prevTime) => prevTime - 1);
+        }, 1000);
+      } else {
+        clearInterval(timer);
+    
+        if (!isRunning) {
+          setTimeLeft(isSession ? breaktime * 60 : session * 60);
+        }
+      }
+    
+      return () => clearInterval(timer);
+    }, [isRunning, timeLeft, breaktime, session, setIsSession, setTimeLeft]);
+    
+
+  useEffect(() => {
+    // Reset the audio element when the component mounts or when isSession changes
+    const beepSound = document.getElementById("beep");
+    beepSound.pause();
+    beepSound.currentTime = 0;
+  }, [isSession]);
+
+
+
+  // Format seconds into "mm:ss"
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes < 10 ? `0${minutes}` : minutes}:${
+      remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds
+    }`;
+  };
+
+  return (
+    <div className="sub-container timer">
+      <h2 className="title" id="timer-label">
+        {!isSession ? "Session" : "Break"}
+      </h2>
+      <h3 className="time-left" id="time-left">
+        {formatTime(timeLeft)}
+      </h3>
+      <div className="controllers">
+        <button id="start_stop" onClick={() => setIsRunning(!isRunning)}>
+          <h4>{isRunning ? "Stop" : "Start"}</h4>
+        </button>
+        <button id="reset" onClick={reset}>
+          <h4>reset</h4>
+        </button>
+      </div>
+      <audio id="beep" src="./assets/beep.mp3" />
+    </div>
+  );
+};
+
+const reset =() =>{
+  setBreaktime(5);
+  setSession(25);
+  setIsRunning(false);
+  setIsSession(false);
+  setTimeLeft(session * 60);
+}
+
+  return (
+    <div className="container">
+      <Break />
+      <Work />
+      <Timer
+        session={session}
+        breaktime={breaktime}
+        isRunning={isRunning}
+        setIsSession={setIsSession}
+        setTimeLeft={setTimeLeft}
+      />
+    </div>
+  );
+}
+
+export default Clock;
