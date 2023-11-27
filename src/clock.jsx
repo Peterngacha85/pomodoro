@@ -3,7 +3,7 @@ import "./clock.css";
 
 function Clock() {
   const [breaktime, setBreaktime] = useState(5);
-  const [session, setSession] = useState(5);
+  const [session, setSession] = useState(25);
   const [isRunning, setIsRunning] = useState(false);
   const [isSession, setIsSession] = useState(false);
   const [timeLeft, setTimeLeft] = useState(session * 60);
